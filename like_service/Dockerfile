@@ -1,20 +1,20 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy requirements.txt first to leverage Docker cache
+COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir Flask
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Copy the rest of the application code
+COPY . .
 
-# Define environment variable
-ENV NAME World
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Run the application using uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
